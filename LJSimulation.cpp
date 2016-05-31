@@ -2,15 +2,28 @@
 
 LJSimulation :: LJSimulation()
 {
-  cout << "Start Sumlation!" << endl;
+  std::cout << "Start Sumlation!" << std::endl;
 }
 
 void LJSimulation :: init(int Npart)  
 {
-  _Npart = Npart;
+  _npart = Npart;
   particles = new Particle[Npart];
   
-  cout << "Start Simulation with " << _Npart << " particles!" << endl;
+  std::random_device rd;	//random number generator	
+  std::mt19937 gen(rd());      
+  std::exponential_distribution<> d(1);
+  std::map<int, int> hist;
+    for(int n=0; n<10000; ++n) {
+        ++hist[2*d(gen)];
+    }
+    for(auto p : hist) {
+        std::cout << std::fixed << std::setprecision(1) 
+                  << p.first/2.0 << '-' << (p.first+1)/2.0 <<
+                ' ' << std::string(p.second/200, '*') << '\n';
+    }
+    
+  std::cout << "Start Simulation with " << _npart << " particles!" << std::endl;
   
   for(int i=0; i<Npart; ++i) particles[i].init();
   for(int i=0; i<Npart; ++i) particles[i].setPos(1.1);
@@ -18,12 +31,12 @@ void LJSimulation :: init(int Npart)
   for(int i=0; i<Npart; ++i) particles[i].setF(3.3);  
   for(int i=0; i<Npart; ++i) particles[i].setBound(4);  
   
-  for(int i=0; i<Npart; ++i) cout << particles[i].getPos() << endl;
-  for(int i=0; i<Npart; ++i) cout << particles[i].getVel() << endl;
-  for(int i=0; i<Npart; ++i) cout << particles[i].getF() << endl;  
-  for(int i=0; i<Npart; ++i) cout << particles[i].getBound() << endl;  
+  for(int i=0; i<Npart; ++i) std::cout << particles[i].getPos() << std::endl;
+  for(int i=0; i<Npart; ++i) std::cout << particles[i].getVel() << std::endl;
+  for(int i=0; i<Npart; ++i) std::cout << particles[i].getF() << std::endl;  
+  for(int i=0; i<Npart; ++i) std::cout << particles[i].getBound() << std::endl;  
   
   delete particles;
 }
 
-void LJSimulation :: start() {cout << "START" << endl;}
+void LJSimulation :: start() {std::cout << "START" << std::endl;}

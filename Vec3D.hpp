@@ -5,8 +5,6 @@
 #include <iterator>
 #include <cmath>
 
-using namespace std;
-
 template <typename T> 
 class Vec3D 
 {
