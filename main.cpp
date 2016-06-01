@@ -4,12 +4,15 @@ using namespace std;
 
 int main(int argc, char** argv) 
 {
-  int N = 10;
+  int N = 216;
+  int nstep = 10;
   
   LJSimulation sim;
   
-  sim.init(N);
-  sim.start();
+  sim.init();
+  sim.set_number_of_particles(N);  //check what happen when I do not give this as input
+  
+  sim.start(nstep);
 
   return 0;
 }

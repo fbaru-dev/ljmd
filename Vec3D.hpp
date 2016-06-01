@@ -2,8 +2,10 @@
 #define _VEC3D_HPP
 
 #include <iostream>
-#include <iterator>
 #include <cmath>
+#include <stdexcept>
+
+typedef double real_type;
 
 template <typename T> 
 class Vec3D 
@@ -20,7 +22,7 @@ class Vec3D
    
     // assignment is not the same as initialization
     Vec3D& operator=(const Vec3D<T>& v);
- 
+    
     T& operator[](int i);
     const T& operator[](int i) const;
 
@@ -48,6 +50,13 @@ class Vec3D
 
     T sqr() const;
     T abs() const;
+    
+    // set and get operators
+    T& at(int i);
+    const T& at(int i) const;
+
+    void setItem(int i, T v);
+    T getItem(int i) const;
   
 };
 
@@ -148,6 +157,29 @@ inline T Vec3D<T>::sqr() const
 template<typename T>
 inline T Vec3D<T>::abs() const
 { return sqrt(sqr()); }
+
+// set and ger operators
+template<typename T>
+inline T &Vec3D<T>::at(int i) {
+  if (i < 0 || i > 2)
+    throw std::out_of_range("Vec3D::at");
+  return (*this)[i];
+}
+
+template<typename T>
+inline const T &Vec3D<T>::at(int i) const {
+  if (i < 0 || i > 2)
+    throw std::out_of_range("Vec3D::at");
+   return (*this)[i];
+}
+
+template<typename T>
+inline void Vec3D<T>::setItem(int i, T v)
+{ this->at(i) = v; }
+
+template<typename T> 
+inline T Vec3D<T>::getItem(int i) const
+{ return this->at(i); }
 
 //outstream for '<<' operator
 template<typename T>
