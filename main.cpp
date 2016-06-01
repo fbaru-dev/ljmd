@@ -5,7 +5,7 @@ using namespace std;
 int main(int argc, char** argv) 
 {
   int N = 216;
-  int nstep = 10;
+  int nstep = 100;
   
   LJSimulation sim;
   

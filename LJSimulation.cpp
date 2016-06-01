@@ -189,10 +189,10 @@ void LJSimulation :: start(int nsteps)
       if (particles[i].pos().at(2) > L  ) { particles[i].pos().at(2) -= L; bc[i].at(2)++; }
     }
     
-//     PE = calculate_forces();
+    real_type PE = calculate_forces();
     
     // Second integration half step
-   real_type KE=0, PE;
+   real_type KE=0;
     for(int i=0; i<get_npart(); ++i)
     {
       particles[i].vel() += particles[i].f()*0.5*dt;
@@ -205,6 +205,36 @@ void LJSimulation :: start(int nsteps)
   }
   
   delete bc;
+}
+
+real_type LJSimulation :: calculate_forces() 
+{
+  real_type energy = 0;
+  //A simple N^2 algorithm to compute the forces and the potential energy
+  //of the full particle system
+  for(int i=0; i<get_npart(); ++i)
+  {
+    for(int j=i+1; j<get_npart(); ++j)
+    {
+      Vec3D<real_type> dist;
+      dist = particles[i].pos() - particles[j].pos();
+      real_type dist2 = dist.sqr();
+      real_type cutoff2=10;
+      if(dist2<cutoff2)
+      {
+	energy += LJpot.compute_energy(dist2);
+	real_type ffactor = LJpot.compute_force(dist2);
+	
+	particles[i].f().at(0) += dist.at(0) * ffactor / dist2;
+	particles[j].f().at(0) -= dist.at(0) * ffactor / dist2;
+	particles[i].f().at(1) += dist.at(1) * ffactor / dist2;
+	particles[j].f().at(1) -= dist.at(1) * ffactor / dist2;
+	particles[i].f().at(2) += dist.at(2) * ffactor / dist2;
+	particles[j].f().at(2) -= dist.at(2) * ffactor / dist2;
+      }
+    }
+  }
+  return energy;
 }
 
 LJSimulation :: ~LJSimulation()

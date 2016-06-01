@@ -8,8 +8,8 @@ class LJPotential
 private:
   real_type _epsilon;
   real_type _sigma;
-  real_type _shift;
-  real_type _cutoff;
+  real_type _shift;		//not yet used
+  real_type _cutoff;		//not yet used
   
   real_type forcef1, forcef2;	//force factor for the LJ potential
   real_type energyf1, energyf2; //energy factor for the LJ potential 	

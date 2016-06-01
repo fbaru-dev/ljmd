@@ -5,6 +5,7 @@
 #include <map>
 #include <iomanip>
 #include "Particle.hpp"
+#include "LJPotential.hpp"
 
 class LJSimulation 
 {
@@ -18,6 +19,7 @@ public:
   
 private:
   Particle *particles;
+  LJPotential LJpot;
   
   int _npart;			//number of particles
   real_type _density;		//density of the system
@@ -35,7 +37,9 @@ private:
   
   void init_positions();	//TODO: initialization from a file
   void init_velocities();
-  void init_forces() {};	
+  void init_forces() {};
+  
+  real_type calculate_forces();
   
   inline void set_npart(const int &N){ _npart = N; }
   inline int get_npart() const {return _npart; }
