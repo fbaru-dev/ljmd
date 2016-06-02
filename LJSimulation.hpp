@@ -6,7 +6,10 @@
 #include <iomanip>
 #include "Particle.hpp"
 #include "LJPotential.hpp"
+#include <stdio.h>
+#include <string.h> 
 
+#include <stdlib.h>
 class LJSimulation 
 {
 public:
@@ -15,27 +18,39 @@ public:
   
   void init();
   void set_number_of_particles(int N);
-  void start(int nsteps);
+  void set_number_of_steps(int N);
+  void start();
   
 private:
   Particle *particles;
   LJPotential LJpot;
+  Vec3D<int> *bc;	 	//boundary cross counter
   
-  int _npart;			//number of particles
+  int       _npart;		//number of particles
   real_type _density;		//density of the system
   real_type _tstep;		//time step of the simulation
   real_type _rcut;		//cutoff radius
-  int	_nsteps;		//number of integration steps
+  int	    _nsteps;		//number of integration steps
   real_type _Tinit;		//initial temperature of the system
-  int	_sfreq;			//sample frequency
+  int	    _sfreq;		//sample frequency
   
-  int	_n3;			//number of particle for each side of the box 
+  int	    _n3;		//number of particle for each side of the box 
   real_type _sideLength;	//side length of the simulation box
   
-  void init_parameters();	//initialization of the simulation parameters
+  real_type _ikenergy;		//intial kinetic energy
+  real_type _penergy;		//potential energy
+  real_type _tenergy;		//termal energy
+  real_type _kenergy;		//kinetic energy
+  real_type _virial;
+  
+  void preset();		//initialization of default parameters
   void init_compute();		//compute the initial parameters setup
   
-  void init_positions();	//TODO: initialization from a file
+  void print_header();
+  void print_out(int step);
+  void print_xyz(int step);
+
+  void init_positions();	//TODO: initialization from a positio file
   void init_velocities();
   void init_forces() {};
   
