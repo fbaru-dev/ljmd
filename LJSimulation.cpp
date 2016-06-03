@@ -4,10 +4,10 @@ LJSimulation :: LJSimulation()
 {
   std::cout << "Initialize MD simulation of a Lennard Jones liquid" << std::endl;
   set_npart(27); 
-  set_density(0.5); 
+  set_density(0.85); 
   set_tstep(0.001); 
-  set_rcut(1.e20);
-  set_Tinit(1.0);
+  set_rcut(2.5);
+  set_Tinit(2.5);
   set_sfreq(100);
   set_nsteps(10);
 }
@@ -221,6 +221,7 @@ real_type LJSimulation :: calculate_forces()
   real_type energy = 0;
   real_type cutoff2 = get_rcut()*get_rcut();
   Vec3D<real_type> dist;
+  real_type ffactor;
   
   _virial = 0;
   for(int i=0; i<n; ++i) { particles[i].setF(0.0); }
@@ -249,7 +250,7 @@ real_type LJSimulation :: calculate_forces()
       if(dist2<cutoff2)
       {
 	energy += LJpot.compute_energy(dist2);
-	real_type ffactor = LJpot.compute_force(dist2);
+	ffactor = LJpot.compute_force(dist2);
 	
 	particles[i].f() += dist * ffactor / dist2;
 	particles[j].f() -= dist * ffactor / dist2;
@@ -300,35 +301,29 @@ void LJSimulation :: print_out(int step)
 
 void LJSimulation :: print_xyz(int step)
 {
-  FILE * out;
-  char * wrt_code_str = "w";
-  char * init_cfg_file = NULL;
   real_type L = get_sideLength();
-  char fn[20];
+  int z=16; //atomic number (need to be guven by input eventually)
+   
+  std::ofstream ofile;
+  std::string extension_name(".xyz");
+  std::string s = std::to_string(step);
+  std::string file_name;
   
-  sprintf(fn,"%i.xyz",!strcmp(wrt_code_str,"a")?0:step);
-  out=fopen(fn,wrt_code_str);
+  // Writes the coordinates in XYZ format to the output stream ofile.
+
+  file_name = s+extension_name;
+  ofile.open(file_name, std::ios::out);
+  ofile << get_npart() << std::endl << std::endl;
   
-  int i;
-  int z=16;
-  fprintf(out,"%i\n\n",get_npart());
-   /* Writes the coordinates in XYZ format to the output stream fp.
-   The integer "z" is the atomic number of the particles, required
-   for the XYZ format. The array ix contains the number of x-dir 
-   periodic boundary crossings a particle has performed; thus,
-   the "unfolded" coordinate is rx[i]+ix[i]*L. */
-  for (i=0;i<get_npart();i++) {
-    fprintf(out,"%i %.8lf %.8lf %.8lf ",z,
-	    particles[i].pos().at(0)+bc[i].at(0)*L,
-	    particles[i].pos().at(1)+bc[i].at(1)*L,
-	    particles[i].pos().at(2)+bc[i].at(2)*L);
-    
-    fprintf(out,"%.8lf %.8lf %.8lf",
-	    particles[i].vel().at(0),
-	    particles[i].vel().at(1),
-	    particles[i].vel().at(2));
-    fprintf(out,"\n");
+  for (i=0;i<get_npart();i++)
+  {
+    //unfolded coordinate due to the boundary crossings
+    Vec3D<real_type> aux = bc[i].convert<real_type>()*L;
+    ofile << z << " " 
+          << particles[i].pos() + aux << particles[i].vel() << std::endl;
   }
+  
+  ofile.close();  
 }
 
 LJSimulation :: ~LJSimulation()

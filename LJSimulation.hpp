@@ -2,8 +2,11 @@
 #define _LJSIMULATION_HPP
 
 #include <random>
-#include <map>
 #include <iomanip>
+#include <iostream>
+#include <fstream>
+#include <string>
+
 #include "Particle.hpp"
 #include "LJPotential.hpp"
 #include <stdio.h>

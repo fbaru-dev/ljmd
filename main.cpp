@@ -4,8 +4,8 @@ using namespace std;
 
 int main(int argc, char** argv) 
 {
-  int N = 50;
-  int nstep = 10;
+  int N = 512;
+  int nstep = 1000;
   
   LJSimulation sim;
   
