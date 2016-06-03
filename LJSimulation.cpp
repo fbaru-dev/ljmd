@@ -97,10 +97,6 @@ void LJSimulation :: init_velocities()
     vel.setItem(0,exp_d(gen));
     vel.setItem(1,exp_d(gen));
     vel.setItem(2,exp_d(gen));
-    
-    vel.setItem(0,0.1);
-    vel.setItem(1,0.2);
-    vel.setItem(2,0.3);
   
     particles[i].setVel(vel);   
   }
@@ -247,7 +243,9 @@ real_type LJSimulation :: calculate_forces()
       
       //compute the distance square
       real_type dist2 = dist.sqr();
+#ifdef WITHCUTOFF
       if(dist2<cutoff2)
+#endif
       {
 	energy += LJpot.compute_energy(dist2);
 	ffactor = LJpot.compute_force(dist2);
@@ -256,8 +254,8 @@ real_type LJSimulation :: calculate_forces()
 	particles[j].f() -= dist * ffactor / dist2;
 	
 	_virial +=  ffactor;
-
       }
+
     }
   }
   return energy;
@@ -315,7 +313,7 @@ void LJSimulation :: print_xyz(int step)
   ofile.open(file_name, std::ios::out);
   ofile << get_npart() << std::endl << std::endl;
   
-  for (i=0;i<get_npart();i++)
+  for (int i=0;i<get_npart();i++)
   {
     //unfolded coordinate due to the boundary crossings
     Vec3D<real_type> aux = bc[i].convert<real_type>()*L;
