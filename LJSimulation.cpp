@@ -26,6 +26,9 @@ void LJSimulation :: preset()
   int n3 = get_n3();
   while ((n3*n3*n3)<get_npart()) n3++;
   set_n3(n3);
+  
+  _pcorr = LJpot.compute_p_corr(get_rcut(), get_density());
+  _ecorr = LJpot.compute_e_corr(get_rcut(), get_density())*get_npart();
 }
 
 void LJSimulation :: init()  
@@ -258,6 +261,7 @@ real_type LJSimulation :: calculate_forces()
 
     }
   }
+  energy += (corrections? _ecorr : 0.0);
   return energy;
 }
 
@@ -270,7 +274,7 @@ void LJSimulation :: print_header()
 	    
   std::cout << "nSteps = " << get_nsteps() << "; " 
 	    << "dt = " << get_tstep()  << std::endl;
-	    
+#ifndef NOOUT	    
   std::cout <<  std::left << std::setw(8)  << "#"
 	    <<  std::left << std::setw(8)  << "step"
 	    <<  std::left << std::setw(12) << "PE"
@@ -280,10 +284,12 @@ void LJSimulation :: print_header()
 	    <<  std::left << std::setw(12) << "T"
 	    <<  std::left << std::setw(12) << "P"
 	    <<  std::endl;
+#endif
 }
 
 void LJSimulation :: print_out(int step)
 {
+#ifndef NOOUT	  
   std::cout <<  std::left << std::setw(8)  << step
 	    <<  std::left << std::setprecision(5) << std::setw(8)  << step*get_tstep()
 	    <<  std::left << std::setprecision(8) << std::setw(12) << _penergy
@@ -295,11 +301,12 @@ void LJSimulation :: print_out(int step)
 	        2./3.*_kenergy*get_density()/get_npart()+
 	        _virial/3.0/(get_npart()/get_density())
 	    <<  std::endl;
+#endif
 }
 
 void LJSimulation :: print_xyz(int step)
 {
-#ifndef NOOUTPUT
+#ifndef NOXYZ
   real_type L = get_sideLength();
   int z=16; //atomic number (need to be guven by input eventually)
    

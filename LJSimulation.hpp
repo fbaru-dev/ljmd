@@ -46,6 +46,11 @@ private:
   real_type _kenergy;		//kinetic energy
   real_type _virial;
   
+  real_type _pcorr;		//sLRC to pressure and energy
+  real_type _ecorr;
+  
+  bool corrections=false;	//switch to the e and p corrections
+  
   void preset();		//initialization of default parameters
   void init_compute();		//compute the initial parameters setup
   
