@@ -2,6 +2,7 @@
 #define _VEC3D_HPP
 
 #include <iostream>
+#include <iomanip> 
 #include <cmath>
 #include <stdexcept>
 
@@ -57,6 +58,14 @@ class Vec3D
 
     void setItem(int i, T v);
     T getItem(int i) const;
+    
+    template<typename T2> Vec3D<T2> convert()
+    {
+       Vec3D<T2> ret;
+       ret.at(0) =  static_cast<T2>(this->at(0));
+       ret.at(1) =  static_cast<T2>(this->at(1));
+       ret.at(2) =  static_cast<T2>(this->at(2));
+    }
   
 };
 
@@ -185,7 +194,8 @@ inline T Vec3D<T>::getItem(int i) const
 template<typename T>
 inline std::ostream &operator<<(std::ostream &out, const Vec3D<T> &v) 
 {
-  return out << v[0] << ' ' << v[1] << ' ' << v[2];
+  return out << std::left << std::setprecision(9) << std::setw(10)
+  << v[0] << ' ' << v[1] << ' ' << v[2];
 }
 
 #ifdef TEST
