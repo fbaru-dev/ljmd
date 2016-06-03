@@ -1,17 +1,26 @@
+#include <iostream>
+
 #include "LJSimulation.hpp"
 
-using namespace std;
-
+//TODO: write a useful user friendly interface
 int main(int argc, char** argv) 
 {
-  int N = 512;
-  int nstep = 1000;
-  
+  int N;	//number of particles
+  int nstep; 	//numebr ot integration steps
   LJSimulation sim;
   
   sim.init();
-  sim.set_number_of_particles(N);  
-  sim.set_number_of_steps(nstep);
+  
+  if(argc>1)
+  {
+    N=atoi(argv[1]);
+    sim.set_number_of_particles(N);  
+    if(argc==3) 
+    {
+      nstep=atoi(argv[2]);
+      sim.set_number_of_steps(nstep);  
+    }
+  }
   
   sim.start();
 

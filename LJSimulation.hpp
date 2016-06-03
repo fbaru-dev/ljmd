@@ -51,7 +51,7 @@ private:
   
   void print_header();
   void print_out(int step);
-  void print_xyz(int step);
+  void print_xyz(int step=-1);
 
   void init_positions();	//TODO: initialization from a positio file
   void init_velocities();

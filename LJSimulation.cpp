@@ -3,13 +3,13 @@
 LJSimulation :: LJSimulation()
 {
   std::cout << "Initialize MD simulation of a Lennard Jones liquid" << std::endl;
-  set_npart(27); 
-  set_density(0.85); 
-  set_tstep(0.001); 
-  set_rcut(2.5);
-  set_Tinit(2.5);
-  set_sfreq(100);
+  set_npart(216); 
   set_nsteps(10);
+  set_density(0.5); 
+  set_tstep(0.001); 
+  set_rcut(1.e20);
+  set_Tinit(1.0);
+  set_sfreq(100);
 }
 
 void LJSimulation :: preset()
@@ -170,7 +170,7 @@ void LJSimulation :: start()
   real_type dt2 = dt*dt;
   real_type L = get_sideLength();
   
-  print_xyz(99);
+  print_xyz();
   
   for (int s=0; s<get_nsteps(); ++s)
   {
@@ -299,16 +299,17 @@ void LJSimulation :: print_out(int step)
 
 void LJSimulation :: print_xyz(int step)
 {
+#ifndef NOOUTPUT
   real_type L = get_sideLength();
   int z=16; //atomic number (need to be guven by input eventually)
    
   std::ofstream ofile;
   std::string extension_name(".xyz");
-  std::string s = std::to_string(step);
+  std::string s;
   std::string file_name;
   
   // Writes the coordinates in XYZ format to the output stream ofile.
-
+  s = ( (step!=-1) ? std::to_string(step):"0i" );
   file_name = s+extension_name;
   ofile.open(file_name, std::ios::out);
   ofile << get_npart() << std::endl << std::endl;
@@ -322,6 +323,7 @@ void LJSimulation :: print_xyz(int step)
   }
   
   ofile.close();  
+#endif
 }
 
 LJSimulation :: ~LJSimulation()
