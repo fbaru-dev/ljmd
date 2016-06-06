@@ -14,6 +14,7 @@ void LJPotential :: preset()
 {
   real_type sigma2 = get_sigma() * get_sigma();
   real_type sigma6 = sigma2 * sigma2 * sigma2;
+  
   forcef1 = 48.0 * get_epsilon() * sigma6 * sigma6;
   forcef2 = 24.0 * get_epsilon() * sigma6;
   energyf1 = 4.0 * get_epsilon() * sigma6 * sigma6;
@@ -47,7 +48,7 @@ real_type LJPotential :: compute_p_corr(real_type rcut, real_type rho)
 {
   real_type rrcut3 = 1.0/(rcut*rcut*rcut);
   real_type rrcut9 = rrcut3*rrcut3*rrcut3;
-  return (presscorrf1*rho*rrcut9 - presscorrf2*rho*rrcut3);
+  return (presscorrf1*rho*rho*rrcut9 - presscorrf2*rho*rho*rrcut3);
 }
 
 real_type LJPotential :: compute_e_corr(real_type rcut, real_type rho) 

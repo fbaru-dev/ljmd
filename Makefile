@@ -1,7 +1,7 @@
 CXX = g++
 OPTFLAGS = -std=c++11 -O2
 #-xCORE-AVX2
-DEBUGFLAGS = -g
+DEBUGFLAGS = -g -DWITHCUTOFF
 OMPFLAGS = -qopenmp
 INCLUDES = 
 

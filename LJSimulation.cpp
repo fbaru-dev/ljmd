@@ -5,11 +5,11 @@ LJSimulation :: LJSimulation()
   std::cout << "Initialize MD simulation of a Lennard Jones liquid" << std::endl;
   set_npart(216); 
   set_nsteps(10);
-  set_density(0.5); 
+  set_density(0.8442); 
   set_tstep(0.001); 
-  set_rcut(1.e20);
-  set_Tinit(1.0);
-  set_sfreq(100);
+  set_rcut(2.5);
+  set_Tinit(0.728);
+  set_sfreq(1000);
 }
 
 void LJSimulation :: preset()
@@ -289,17 +289,21 @@ void LJSimulation :: print_header()
 
 void LJSimulation :: print_out(int step)
 {
-#ifndef NOOUT	  
+#ifndef NOOUT	
+  real_type drift = (_tenergy - _ikenergy )/ _ikenergy;
+  real_type temperature = 2./3.*_kenergy/get_npart();
+  real_type pressure = 2./3.*_kenergy*get_density()/get_npart()+
+	               _virial/3.0/(get_npart()/get_density());
+  pressure += (corrections? _pcorr : 0.0);
+  
   std::cout <<  std::left << std::setw(8)  << step
 	    <<  std::left << std::setprecision(5) << std::setw(8)  << step*get_tstep()
 	    <<  std::left << std::setprecision(8) << std::setw(12) << _penergy
 	    <<  std::left << std::setprecision(8) << std::setw(12) << _kenergy
 	    <<  std::left << std::setprecision(8) << std::setw(15) << _tenergy
-	    <<  std::left << std::setprecision(8) << std::setw(15) << (_tenergy - _ikenergy )/ _ikenergy
-	    <<  std::left << std::setprecision(8) << std::setw(12) << 2./3.*_kenergy/get_npart() 
-	    <<  std::left << std::setprecision(8) << std::setw(12) <<
-	        2./3.*_kenergy*get_density()/get_npart()+
-	        _virial/3.0/(get_npart()/get_density())
+	    <<  std::left << std::setprecision(8) << std::setw(15) << drift
+	    <<  std::left << std::setprecision(8) << std::setw(12) << temperature
+	    <<  std::left << std::setprecision(8) << std::setw(12) << pressure 
 	    <<  std::endl;
 #endif
 }
@@ -308,7 +312,7 @@ void LJSimulation :: print_xyz(int step)
 {
 #ifndef NOXYZ
   real_type L = get_sideLength();
-  int z=16; //atomic number (need to be guven by input eventually)
+  int z=16; //atomic number (need to be given by input eventually)
    
   std::ofstream ofile;
   std::string extension_name(".xyz");
