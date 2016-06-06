@@ -3,8 +3,8 @@
 LJSimulation :: LJSimulation()
 {
   std::cout << "Initialize MD simulation of a Lennard Jones liquid" << std::endl;
-  set_npart(216); 
-  set_nsteps(10);
+  set_npart(108); 
+  set_nsteps(50000);
   set_density(0.8442); 
   set_tstep(0.001); 
   set_rcut(2.5);

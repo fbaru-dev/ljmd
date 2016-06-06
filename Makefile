@@ -49,9 +49,19 @@ instructions:
 	$(info "make mic" to compile the application on the target MIC)
 	$(info )
 
-run-cpu: app-CPU
-	./app-CPU 
-
+run-cpu: 
+	$(info )
+	$(info Run the default test case on CPU: )
+	./lennard-cpu.x > result.out &
+	
+run-mic: 
+	$(info )
+	$(info Run the default test case on MIC: )
+	scp lennard-mic.x $(HOST)-mic0:~/
+	ssh $(HOST)-mic0 OMP_NUM_THREADS=60 ./lennard-mic.x > result.out &
+	scp $(HOST)-mic0:~/*.xyz .
+	scp $(HOST)-mic0:~/result.out .
+	
 clean: 
 	rm -f $(OBJSC) $(OBJSM) lennard-cpu.x lennard-mic.x
 

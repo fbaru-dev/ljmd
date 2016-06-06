@@ -6,7 +6,7 @@
 int main(int argc, char** argv) 
 {
   int N;	//number of particles
-  int nstep; 	//numebr ot integration steps
+  int nstep; 	//number ot integration steps
   LJSimulation sim;
   
   sim.init();
