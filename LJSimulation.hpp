@@ -28,6 +28,8 @@
 #include <string>
 #include <sstream>
 
+#include <omp.h>
+
 #include "Particle.hpp"
 #include "LJPotential.hpp"
 
@@ -66,6 +68,9 @@ private:
   
   real_type _pcorr;		//sLRC to pressure and energy
   real_type _ecorr;
+  
+  double _timeForce, _timeTot;
+  double _forceFlops, _totFlops;
   
   bool corrections=false;	//switch to the e and p corrections
   

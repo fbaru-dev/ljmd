@@ -1,12 +1,12 @@
 CXX = icpc
-OPTFLAGS = -std=c++11 -O0
+OPTFLAGS = -std=c++11 -O2
 #-xCORE-AVX2
-DEBUGFLAGS = -g -DWITHCUTOFF
+DEBUGFLAGS = -g -DWITHCUTOFF -DNOXYZ -DNOOUT
 OMPFLAGS = -qopenmp
 INCLUDES = 
 
-CXXFLAGS = $(OPTFLAGS) $(DEBUGFLAGS)
-MICFLAGS = $(OPTFLAGS) $(DEBUGFLAGS) -mmic
+CXXFLAGS = $(OPTFLAGS) $(DEBUGFLAGS) $(OMPFLAGS)
+MICFLAGS = $(OPTFLAGS) $(DEBUGFLAGS) $(OMPFLAGS) -mmic
 
 SOURCES = LJSimulation.cpp LJPotential.cpp main.cpp
 
@@ -52,13 +52,13 @@ instructions:
 run-cpu: 
 	$(info )
 	$(info Run the default test case on CPU: )
-	./lennard-cpu.x > result-cpu.out &
+	./lennard-cpu.x 
 	
 run-mic: 
 	$(info )
 	$(info Run the default test case on MIC: )
 	scp lennard-mic.x $(HOST)-mic0:~/
-	ssh $(HOST)-mic0 OMP_NUM_THREADS=1 ./lennard-mic.x > result-mic.out &
+	ssh $(HOST)-mic0 OMP_NUM_THREADS=1 ./lennard-mic.x 
 
 clean: 
 	rm -f $(OBJSC) $(OBJSM) lennard-cpu.x lennard-mic.x

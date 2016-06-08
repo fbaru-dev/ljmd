@@ -153,29 +153,6 @@ void LJSimulation :: init_velocities()
   real_type _penergy = calculate_forces();
   _ikenergy = _kenergy + _penergy;
   
-// Examples of random number generators    
-//     std::map<int, int> hist1,hist2;
-//     for(int n=0; n<10000; ++n) {
-//         ++hist1[2*exp_d(gen)];
-//     }
-//     for(auto p : hist1) {
-//         std::cout << std::fixed << std::setprecision(1) 
-//                   << p.first/2.0 << '-' << (p.first+1)/2.0 <<
-//                 ' ' << std::string(p.second/200, '*') << '\n';
-//     }
-    
-//     std::random_device rd;	
-//     std::mt19937 gen(rd());      
-//     std::normal_distribution<> nd(5,2);
-//  
-//     for(int n=0; n<10000; ++n) {
-//         ++hist2[std::round(nd(gen))];
-//     }
-//     for(auto p : hist2) {
-//         std::cout << std::fixed << std::setprecision(1) << std::setw(2)
-//                   << p.first << ' ' << std::string(p.second/200, '*') << '\n';
-//     }
-  
 }
 
 void LJSimulation :: start() 
@@ -194,14 +171,15 @@ void LJSimulation :: start()
   real_type L = get_sideLength();
   
   print_xyz();
-  
+  _timeTot = 0.; _timeForce = 0.;
+  const double t0 = omp_get_wtime();
   for (int s=0; s<get_nsteps(); ++s)
   {
     // First integration half step
     for(int i=0; i<get_npart() ; ++i)
     {
-      particles[i].pos() += particles[i].vel()*dt + particles[i].f()*0.5*dt2;
-      particles[i].vel() += particles[i].f()*0.5*dt;
+      particles[i].pos() += particles[i].vel()*dt + particles[i].f()*0.5*dt2;	//4flops * 3 = 12flops
+      particles[i].vel() += particles[i].f()*0.5*dt;				//3flops * 3 = 9flops
       
       //apply periodic boundary conditions
       if (particles[i].pos().at(0) < 0.0) { particles[i].pos().at(0) += L; bc[i].at(0)--; }
@@ -213,23 +191,40 @@ void LJSimulation :: start()
       if (particles[i].pos().at(2) < 0.0) { particles[i].pos().at(2) += L; bc[i].at(2)--; }
       if (particles[i].pos().at(2) > L  ) { particles[i].pos().at(2) -= L; bc[i].at(2)++; }
     }
+   const double t0f = omp_get_wtime();
    _penergy = calculate_forces();
-   
+   const double t1f = omp_get_wtime();
+   _timeForce += (t1f-t0f);
     // Second integration half step
    real_type k_energy=0;
    for(int i=0; i<get_npart(); ++i)
    {
-     particles[i].vel() += particles[i].f()*0.5*dt;
-     k_energy += (particles[i].getVel()*particles[i].getVel());
+     particles[i].vel() += particles[i].f()*0.5*dt;				//3flops * 3 = 9flops
+     k_energy += (particles[i].getVel()*particles[i].getVel());			//2flops
    }
    _kenergy = k_energy * 0.5;
    _tenergy = _kenergy + _penergy;
 
    print_out(s);
    if(!(s%get_sfreq())) print_xyz(s);
-      
   }
-  
+  const double t1 = omp_get_wtime();
+  _timeTot = (t1-t0);   
+  _totFlops = 1e-9 * (12. + 9. + 9. + 2.) * double(get_npart()) * double(get_nsteps()) + 1e-9 *_forceFlops * double(get_npart());
+
+  std::cout << "End of the LJ simulation" << std::endl;
+  std::cout << "L = " << get_sideLength() << "; " 
+	    << "rho = " << get_density()  << "; "
+	    << "N = " << get_npart() << "; "
+	    << "rc = " << get_rcut() << std::endl;
+	    
+  std::cout << "nSteps = " << get_nsteps() << "; " 
+	    << "dt = " << get_tstep()  << std::endl;
+	   
+  std::cout << "# Time for Force Calculation (s): " <<  _timeForce  << std::endl;
+  std::cout << "# Total Time (no Initial) (s)   : " <<  _timeTot << std::endl;
+  std::cout << "# Relative Ratio of Force (%)   : " <<  _timeForce/_timeTot *100.  << std::endl;
+  std::cout << "# GFlops: " << _totFlops/ _timeTot << std::endl;
 }
 
 real_type LJSimulation :: calculate_forces() 
@@ -242,7 +237,10 @@ real_type LJSimulation :: calculate_forces()
   Vec3D<real_type> dist;
   real_type ffactor;
   
+  _forceFlops = 0.;
   _virial = 0;
+  int count=0;
+  
   for(int i=0; i<n; ++i) { particles[i].setF(0.0); }
   
   //A simple N^2 algorithm to compute the forces and the potential energy
@@ -251,7 +249,7 @@ real_type LJSimulation :: calculate_forces()
   {
     for(int j=i+1; j<n; ++j)
     {
-      dist = particles[i].getPos() - particles[j].getPos();
+      dist = particles[i].getPos() - particles[j].getPos();	//1flop * 3 = 3flops
       
       //the minimum image convention is used for applying the
       //boundary conditions to the system
@@ -265,22 +263,23 @@ real_type LJSimulation :: calculate_forces()
       else if(dist.at(2) < -halfL)	dist.at(2) +=L;
       
       //compute the distance square
-      real_type dist2 = dist.sqr();
+      real_type dist2 = dist.sqr();				//3 square + 2 add = 5flops
 #ifdef WITHCUTOFF
       if(dist2<cutoff2)
 #endif
       {
-	energy += LJpot.compute_energy(dist2);
-	ffactor = LJpot.compute_force(dist2);
+	energy += LJpot.compute_energy(dist2);			//7flops+1add = 8flops
+	ffactor = LJpot.compute_force(dist2);			//7flops		
 	
-	particles[i].f() += dist * ffactor / dist2;
-	particles[j].f() -= dist * ffactor / dist2;
+	particles[i].f() += dist * ffactor / dist2;		//3flops * 3 = 9flops
+	particles[j].f() -= dist * ffactor / dist2;		//3flops * 3 = 9flops
 	
-	_virial +=  ffactor;
+	_virial +=  ffactor;					//1flop
+	count++;
       }
-
     }
   }
+  _forceFlops = (double)(count)*(8. + 7. + 9. + 9. + 1.) + (double)(n*(n - 1))*5.;
   energy += (corrections? _ecorr : 0.0);
   return energy;
 }
