@@ -1,3 +1,23 @@
+/*
+    This file is part of the program ljmd, a Lennard Jones Molecular
+    Dynamics code written for teaching and testing functionalities.
+    
+    Copyright (C) 2016  Fabio Baruffa <fbaru-dev@gmail.com>
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 #include "LJSimulation.hpp"
 
 LJSimulation :: LJSimulation()
@@ -318,13 +338,15 @@ void LJSimulation :: print_xyz(int step)
   std::string extension_name(".xyz");
   std::string s;
   std::string file_name;
+  std::stringstream convert;      //stringstream used for the conversion 
   
-  // Writes the coordinates in XYZ format to the output stream ofile.
-  s = ( (step!=-1) ? std::to_string(step):"0i" );
+  convert << step;
+  s = ( (step!=-1) ? convert.str(): "0i" );
   file_name = s+extension_name;
-  ofile.open(file_name, std::ios::out);
+
+  // Writes the coordinates in XYZ format to the output stream ofile.
+  ofile.open(file_name.c_str(), std::ios::out);
   ofile << get_npart() << std::endl << std::endl;
-  
   for (int i=0;i<get_npart();i++)
   {
     //unfolded coordinate due to the boundary crossings
