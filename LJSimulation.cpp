@@ -173,6 +173,7 @@ void LJSimulation :: start()
   print_xyz();
   _timeTot = 0.; _timeForce = 0.;
   const double t0 = omp_get_wtime();
+#pragma omp parallel for
   for (int s=0; s<get_nsteps(); ++s)
   {
     // First integration half step
@@ -192,7 +193,7 @@ void LJSimulation :: start()
       if (particles[i].pos().at(2) > L  ) { particles[i].pos().at(2) -= L; bc[i].at(2)++; }
     }
    const double t0f = omp_get_wtime();
-   _penergy = calculate_forces();
+   _penergy = calculate_forces();						//_forceFlops
    const double t1f = omp_get_wtime();
    _timeForce += (t1f-t0f);
     // Second integration half step
@@ -210,7 +211,7 @@ void LJSimulation :: start()
   }
   const double t1 = omp_get_wtime();
   _timeTot = (t1-t0);   
-  _totFlops = 1e-9 * (12. + 9. + 9. + 2.) * double(get_npart()) * double(get_nsteps()) + 1e-9 *_forceFlops * double(get_npart());
+  _totFlops = 1e-9 * (12. + 9. + 9. + 2.) * double(get_npart()) * double(get_nsteps()) +  1e-9 * _forceFlops * double(get_nsteps()) ;
 
   std::cout << "End of the LJ simulation" << std::endl;
   std::cout << "L = " << get_sideLength() << "; " 
@@ -279,7 +280,7 @@ real_type LJSimulation :: calculate_forces()
       }
     }
   }
-  _forceFlops = (double)(count)*(8. + 7. + 9. + 9. + 1.) + (double)(n*(n - 1))*5.;
+  _forceFlops = (double)(count)*(8. + 7. + 9. + 9. + 1.) + (double)(n*(n - 1)) * (5. + 3.);
   energy += (corrections? _ecorr : 0.0);
   return energy;
 }
