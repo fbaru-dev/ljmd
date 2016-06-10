@@ -221,7 +221,10 @@ void LJSimulation :: start()
 	    
   std::cout << "nSteps = " << get_nsteps() << "; " 
 	    << "dt = " << get_tstep()  << std::endl;
-	   
+  int nthreads=1;
+#pragma omp parallel
+  nthreads=omp_get_num_threads();
+  std::cout << "# Number of running threads     : " << nthreads << std::endl;	   
   std::cout << "# Time for Force Calculation (s): " <<  _timeForce  << std::endl;
   std::cout << "# Total Time (no Initial) (s)   : " <<  _timeTot << std::endl;
   std::cout << "# Relative Ratio of Force (%)   : " <<  _timeForce/_timeTot *100.  << std::endl;
