@@ -173,7 +173,7 @@ void LJSimulation :: start()
   print_xyz();
   _timeTot = 0.; _timeForce = 0.;
   const double t0 = omp_get_wtime();
-#pragma omp parallel for
+
   for (int s=0; s<get_nsteps(); ++s)
   {
     // First integration half step
