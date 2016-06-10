@@ -283,7 +283,7 @@ real_type LJSimulation :: calculate_forces()
       }
     }
   }
-  _forceFlops = (double)(count)*(8. + 7. + 9. + 9. + 1.) + (double)(n*(n - 1)) * (5. + 3.);
+  _forceFlops = (double)(count)*(8. + 7. + 9. + 9. + 1.) + (double)(n*(n - 1)/2) * (5. + 3.);
   energy += (corrections? _ecorr : 0.0);
   return energy;
 }
