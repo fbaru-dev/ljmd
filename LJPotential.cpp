@@ -46,7 +46,7 @@ void LJPotential :: preset()
   energycorrf2 = 8.0/3.0  * M_PI * get_epsilon() * sigma6;
 }
 
-inline eal_type LJPotential :: compute_force(real_type distance2)			//tot:7flops
+real_type LJPotential :: compute_force(real_type distance2)			//tot:7flops
 {
   real_type idistance6 = 1.0 / (distance2 * distance2 * distance2);		//1div + 2mul = 3flops	
   real_type f1 = forcef1 * idistance6 * idistance6;				//2flops
@@ -55,7 +55,7 @@ inline eal_type LJPotential :: compute_force(real_type distance2)			//tot:7flops
   return  f1 - f2;								//1flop
 }
 
-inline real_type LJPotential :: compute_energy(real_type distance2) 			//tot:7flops
+real_type LJPotential :: compute_energy(real_type distance2) 			//tot:7flops
 {
   real_type idistance6 = 1.0 / (distance2 * distance2 * distance2);		//1div + 2mul = 3flops
   real_type e1 = energyf1 * idistance6 * idistance6;				//2flops
@@ -64,14 +64,14 @@ inline real_type LJPotential :: compute_energy(real_type distance2) 			//tot:7fl
   return e1 - e2;								//1flop
 }
 
-inline real_type LJPotential :: compute_p_corr(real_type rcut, real_type rho) 
+real_type LJPotential :: compute_p_corr(real_type rcut, real_type rho) 
 {
   real_type rrcut3 = 1.0/(rcut*rcut*rcut);
   real_type rrcut9 = rrcut3*rrcut3*rrcut3;
   return (presscorrf1*rho*rho*rrcut9 - presscorrf2*rho*rho*rrcut3);
 }
 
-inline real_type LJPotential :: compute_e_corr(real_type rcut, real_type rho) 
+real_type LJPotential :: compute_e_corr(real_type rcut, real_type rho) 
 {
   real_type rrcut3 = 1.0/(rcut*rcut*rcut);
   real_type rrcut9 = rrcut3*rrcut3*rrcut3;

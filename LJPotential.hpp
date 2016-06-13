@@ -48,11 +48,11 @@ public:
   void set_sigma(real_type sigma) { _sigma = sigma; preset(); }
   real_type get_sigma() const { return _sigma; }
   
-  inline real_type compute_force(real_type distance2);
-  inline real_type compute_energy(real_type distance2);
+  real_type compute_force(real_type distance2);
+  real_type compute_energy(real_type distance2);
   
-  inline real_type compute_p_corr(real_type rcut, real_type rho);
-  inline real_type compute_e_corr(real_type rcut, real_type rho);	
+  real_type compute_p_corr(real_type rcut, real_type rho);
+  real_type compute_e_corr(real_type rcut, real_type rho);	
 };  
 
 #endif
