@@ -21,7 +21,6 @@
 #include <iostream>
 
 #include "LJSimulation.hpp"
-
 //TODO: write a useful user friendly interface
 int main(int argc, char** argv) 
 {
